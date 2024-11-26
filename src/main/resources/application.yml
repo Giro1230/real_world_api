@@ -1,3 +1,35 @@
 spring:
   application:
-    name: real_world2
+    name: real_world_api
+
+  server:
+    port: 8080
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/REALWORLD
+    username: root
+    password: root
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  security:
+    user:
+      name: admin
+      password: admin
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+jwt:
+  secret: realWorldByGiro123456789qwerasdfrealWorldByGiro123456789qwerasdf
+  expiration: 86400000
