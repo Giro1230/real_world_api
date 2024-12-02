@@ -3,7 +3,7 @@ package com.realworld.user.service;
 import com.realworld.security.jwt.Jwt;
 import com.realworld.user.controller.req.*;
 import com.realworld.user.controller.res.*;
-
+import com.realworld.user.domain.User;
 import com.realworld.user.repository.UserRepository;
 import com.realworld.user.service.inf.UserServiceInterface;
 import org.slf4j.*;
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImp implements UserServiceInterface {
 
-    private Logger logger;
+    private final Logger logger;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final Jwt jwt;
 
-    public UserServiceImp(Jwt jwt, PasswordEncoder passwordEncoder, UserRepository userRepository, Logger logger) {
+    public UserServiceImp(Jwt jwt, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.jwt = jwt;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
@@ -27,21 +27,61 @@ public class UserServiceImp implements UserServiceInterface {
 
     @Override
     public RegisterUserRes register(RegisterUserReq data) {
-        return null;
+        //password encode
+        data.setPassword(passwordEncoder.encode(data.getPassword()));
+        logger.info("user password encoded : {}", data.getEmail());
+
+        // RegisterUserReq -> User
+        User userData = data.dataTransfer();
+
+        return new RegisterUserRes()
+                .dataTransfer(userData, jwt.generateToken(userData));
     }
 
     @Override
     public LoginUserRes login(LoginUserReq data) {
-        return null;
+        // getUserEmail
+        User user = userRepository.findByEmail(data.getEmail());
+
+        if (passwordEncoder.matches(data.getPassword(), user.getPassword())) {
+
+            // User -> LoginUserRes
+            return new LoginUserRes()
+                    .dataTransfer(user, jwt.generateToken(user));
+
+        } else {
+            logger.error("Failed to login user");
+            throw new RuntimeException("Failed to login user");
+        }
     }
 
     @Override
     public CurrentUserRes getCurrentUser(CurrentUserReq data) {
-        return null;
+        User user = getUserByEmail(data.getEmail());
+        return new CurrentUserRes()
+                .dataTransfer(user, jwt.generateToken(user));
     }
 
     @Override
     public UpdatedUserRes update(String email, UpdatedUserReq data) {
-        return null;
+        // findUserByEmail
+        User user = getUserByEmail(email);
+
+        // updatedUser
+        user.updated(data);
+
+        return new UpdatedUserRes()
+                .dataTransfer(user, jwt.generateToken(user));
+    }
+
+    public User getUserByEmail(String userEmail) {
+        try {
+
+            return userRepository.findByEmail(userEmail);
+        } catch (Exception e) {
+
+            logger.error("Failed to get user by email: {}", userEmail, e);
+            throw new RuntimeException("Failed to get user by email: " + userEmail, e);
+        }
     }
 }

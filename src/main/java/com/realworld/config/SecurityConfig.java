@@ -1,6 +1,7 @@
 package com.realworld.config;
 
 import com.realworld.security.jwt.Jwt;
+import com.realworld.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

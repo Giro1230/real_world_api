@@ -1,5 +1,6 @@
 package com.realworld.user.domain;
 
+import com.realworld.user.controller.req.UpdatedUserReq;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.*;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "users")
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +34,6 @@ public class User {
 
     @Comment("비밀번호")
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Size(min = 6, message = "비밀번호는 최소 6자 이상이어야 합니다.")
     @Column(nullable = false)
     private String password;
 
@@ -49,4 +49,8 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public void updated(UpdatedUserReq data){
+        this.email = data.getEmail();
+    }
 }
